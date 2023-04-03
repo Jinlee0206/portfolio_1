@@ -49,6 +49,7 @@ public class DragonState_AI : State
         }
     }
 
+    // 영상 녹화에 초점을 맞춰 시간에 따라 
     void AttackPhase()
     {
         // false 일때만 들어오고 나머지는 dragon 0번 리스트가 호출이 안되게 or bool 값 처리

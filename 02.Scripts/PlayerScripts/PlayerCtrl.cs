@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour
 {
+    // 플레이어 상태 enum 값으로 생성
     public enum eState
     {
         GROUNDED,
@@ -23,27 +24,26 @@ public class PlayerCtrl : MonoBehaviour
     }
 
     [HideInInspector]
-    public pStateMachine m_playerSM;
+    public pStateMachine m_playerSM; // 플레이어 스테이트 머신
 
-    public Dictionary<eState, pState> m_pStates = new Dictionary<eState, pState>();
+    public Dictionary<eState, pState> m_pStates = new Dictionary<eState, pState>(); // 플레이어 스테이트 Dictionary로 구현
 
     [SerializeField]
-    public Transform cameraTransform;
+    public Transform cameraTransform;                    // 카메라 트랜스폼
     [SerializeField]
-    public Rigidbody pRigidbody;
+    public Rigidbody pRigidbody;                         // 플레이어 Rigidbody
     [SerializeField]
-    public CharacterController characterController;
+    public CharacterController characterController;      // 캐릭터 컨트롤러 인스턴스 선언
     [SerializeField]
-    public Animator pAnim;
+    public Animator pAnim;                               // 플레이어 애니메이터
     [HideInInspector]
-    public Transform playerTr;
+    public Transform playerTr;                           // 플레이어 트랜스폼
     [HideInInspector]
-    public Transform dragonTr;
+    public Transform dragonTr;                           // 드래곤 트랜스폼
     [HideInInspector]
-    public PlayerWeapon weapon;
+    public PlayerWeapon weapon;                          // 플레이어 무기 
     
-    public Vector3 moveDirection = Vector3.zero;
-
+    public Vector3 moveDirection = Vector3.zero;         // 이동 벡터 초기화
 
     public float pWalkSpeed = 3.0f;
     public float pCrouchSpeed = 1.5f;
@@ -59,7 +59,7 @@ public class PlayerCtrl : MonoBehaviour
     [HideInInspector]
     public float animTime => pAnim.GetCurrentAnimatorStateInfo(0).normalizedTime;
 
-
+    // 각종 파라미터 및 string 값 해싱
     #region Properties
 
     private int horizonalMoveParam = Animator.StringToHash("H_Speed");
@@ -91,8 +91,9 @@ public class PlayerCtrl : MonoBehaviour
 
     private void Start()
     {
-        m_playerSM = new pStateMachine();
+        m_playerSM = new pStateMachine();       // 스테이트 머신 인스턴스 생성
 
+        // 플레이어 스테이트 머신에 State 추가
         m_pStates.Add(eState.GROUNDED, new PlayerState_GROUNDED(this, m_playerSM));
         m_pStates.Add(eState.STANDING, new PlayerState_STANDING(this, m_playerSM));
         m_pStates.Add(eState.CROUCH, new PlayerState_CROUCH(this, m_playerSM));
@@ -121,6 +122,9 @@ public class PlayerCtrl : MonoBehaviour
         m_playerSM.CurrentState.PhysicsUpdate();
     }
 
+    // 애니메이션
+    #region Anim
+
     public void SetAnimationBool(int param, bool value)
     {
         pAnim.SetBool(param, value);
@@ -138,7 +142,10 @@ public class PlayerCtrl : MonoBehaviour
             m_playerSM.ChangeState(m_pStates[eState.STANDING]);
         }
     }
-    
+    #endregion
+
+    // 캐릭터 이동 구현
+    #region Move
     public void Move(float x, float z)
     {
         moveDirection = new Vector3(x, 0, z);
@@ -159,14 +166,15 @@ public class PlayerCtrl : MonoBehaviour
         moveDirection = new Vector3(direction.x, moveDirection.y, direction.z);
     }
 
-
     public void ResetMoveParams()
     {
         GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         pAnim.SetFloat(horizonalMoveParam, 0f);
         pAnim.SetFloat(verticalMoveParam, 0f);
     }
+    #endregion 
 
+    // 콤보어택
     public void ComboAtkCheck(eState state, string _animName)
     {
         curAnimName = _animName;
@@ -182,6 +190,7 @@ public class PlayerCtrl : MonoBehaviour
         }
     }
 
+    // 애니메이션 이름과 시간 값을 이용해 무기 BoxCollider enable
     public void ColliderActive(PlayerCtrl player, string _animName)
     {
         curAnimName = _animName;
